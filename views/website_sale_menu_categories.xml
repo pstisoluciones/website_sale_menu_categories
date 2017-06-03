@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <!-- Layout and common templates -->
+        <template id="assets_frontend" inherit_id="website.assets_frontend" name="Product menu assets">
+            <xpath expr="." position="inside">
+                <link rel="stylesheet" href="/website_sale_menu_categories/static/src/css/website_sale_menu_categories.css"/>
+            </xpath>
+        </template>
+
+        <!-- Product categories horizontal -->
+        <template id="products_categories_horizontal" name="Products Categories Horizontal" inherit_id="website_sale.products_categories" active="True" customize_show="True">
+          <xpath expr="//div[@id='products_grid_before']" position="replace">
+              <div id="products_grid_before" class="col-md-3"/>
+          </xpath>
+          <xpath expr="//div[@class='oe_structure']" position="replace">
+              <div class="oe_structure col-md-12">
+                  <ul class="nav nav-pills" id="category-pills-horizontal">
+                      <li class="categ_button" t-att-class="active">
+                          <a t-att-href="keep('/shop',category=0)">All Products</a>
+                      </li>
+                      <t t-foreach="categories" t-as="categ">
+                          <t t-call="website_sale_menu_categories.products_recursive_categories"/>
+                      </t>
+                  </ul>
+              </div>
+          </xpath>
+        </template>
+
+         <!-- Categories vertical menu -->
+        <template id="products_categories_vertical" name="Products Categories Vertical" inherit_id="website_sale.products_categories" active="False" customize_show="True">
+          <xpath expr="//div[@id='products_grid_before']" position="replace">
+              <div id="products_grid_before" class="col-md-3">
+                  <ul class="nav nav-pills nav-stacked mt16" id="category-pills-vertical">
+                      <li t-att-class="active">
+                          <a t-att-href="keep('/shop',category=0)">All Products</a>
+                      </li>
+                      <t t-foreach="categories" t-as="categ">
+                          <t t-call="website_sale_menu_categories.products_recursive_categories"/>
+                      </t>
+                  </ul>
+              </div>
+          </xpath>
+      </template>
+
+      <!-- Categories navigator -->
+      <template id="products_categories_navigator" name="Products Categories Navigator" inherit_id="website_sale.products_categories">
+          <xpath expr="//div[@id='products_grid']" position="before">
+              <div class="col-md-9" id="products_categories_navigator">
+                  <ol t-if="category" class="breadcrumb">
+                      <li><a t-att-href="keep('/shop',category=0)">All Products</a></li>
+                      <li t-if="category.parent_id.parent_id.parent_id.parent_id.parent_id.parent_id.parent_id"> <!-- seventh child category -->
+                          <a t-att-href="keep('/shop/category/%s' % slug(category.parent_id.parent_id), category=0)" t-field="category.parent_id.parent_id.parent_id.parent_id.parent_id.parent_id.parent_id.name"/>
+                      </li>
+                      <li t-if="category.parent_id.parent_id.parent_id.parent_id.parent_id.parent_id"> <!-- sixth child category -->
+                          <a t-att-href="keep('/shop/category/%s' % slug(category.parent_id.parent_id), category=0)" t-field="category.parent_id.parent_id.parent_id.parent_id.parent_id.parent_id.name"/>
+                      </li>
+                      <li t-if="category.parent_id.parent_id.parent_id.parent_id.parent_id"> <!-- fifth child category -->
+                          <a t-att-href="keep('/shop/category/%s' % slug(category.parent_id.parent_id), category=0)" t-field="category.parent_id.parent_id.parent_id.parent_id.parent_id.name"/>
+                      </li>
+                      <li t-if="category.parent_id.parent_id.parent_id.parent_id"> <!-- fourth child category -->
+                          <a t-att-href="keep('/shop/category/%s' % slug(category.parent_id.parent_id), category=0)" t-field="category.parent_id.parent_id.parent_id.parent_id.name"/>
+                      </li>
+
+                      <li t-if="category.parent_id.parent_id.parent_id"> <!-- third child category -->
+                          <a t-att-href="keep('/shop/category/%s' % slug(category.parent_id.parent_id), category=0)" t-field="category.parent_id.parent_id.parent_id.name"/>
+                      </li>
+                      <li t-if="category.parent_id.parent_id"> <!-- second child category -->
+                          <a t-att-href="keep('/shop/category/%s' % slug(category.parent_id.parent_id), category=0)" t-field="category.parent_id.parent_id.name"/>
+                      </li>
+                      <li t-if="category.parent_id"> <!-- first child category -->
+                          <a t-att-href="keep('/shop/category/%s' % slug(category.parent_id), category=0)" t-field="category.parent_id.name"/>
+                      </li>
+                      <li t-if="category"> <!-- master category-->
+                          <a t-att-href="keep('/shop/category/%s' % slug(category), category=0)" t-field="category.name"/>
+                      </li>
+                  </ol>
+               </div>
+                <!-- Subcategories buttons -->
+                <div t-if="category" class="col-md-9" id="products_subcategories_buttons">
+                  <span t-if="category.child_id">
+                      <t t-foreach="category.child_id" t-as="categ">
+                          <a style="margin-top:3px;margin-bottom:3px;" class="btn btn-primary btn-sm" t-att-href="keep('/shop/category/' + slug(categ), category=0)" t-field="categ.name"></a>
+                      </t>
+                  </span>
+               </div>
+               <div class="products_pager col-md-8" id="products_pager">
+                   <t t-call="website_sale.search">
+                       <t t-set="search_class">pagination form-inline col-md-3</t>
+                   </t>
+                   <t t-call="website.pager"/>
+               </div>
+          </xpath>
+        </template>
+
+        <!-- Recursive categories -->
+        <template id="products_recursive_categories" name="Products Recursive Categories">
+          <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" t-att-href="keep('/shop/category/' + slug(categ), category=0)" t-field="categ.name">
+              <span class="caret"></span></a>
+              <ul class="dropdown-menu" t-if="categ.child_id">
+                  <t t-foreach="categ.child_id" t-as="categ">
+                      <li class="dropdown">
+                          <a t-att-href="keep('/shop/category/' + slug(categ), category=0)" t-field="categ.name"></a>
+                      </li>
+                  </t>
+              </ul>
+          </li>
+       </template>
+
+       <!-- Old top pager ubication -->
+       <template id="products_pager" name="Products Pager" inherit_id="website_sale.products">
+            <xpath expr="//div[@class='products_pager']" position="replace"/>
+       </template>
+
+       <!-- Primary divs full width templates -->
+       <template id="products_navigator_full_width" inherit_id="website_sale_menu_categories.products_categories_navigator" name="Products Navigator Full Width" active="True" customize_show="True">
+          <xpath expr="//div[@id='products_categories_navigator']" position="attributes">
+              <attribute name="class">col-md-12</attribute>
+          </xpath>
+          <xpath expr="//div[@id='products_subcategories_buttons']" position="attributes">
+              <attribute name="class">col-md-12</attribute>
+          </xpath>
+          <xpath expr="//div[@id='products_pager']" position="attributes">
+              <attribute name="class">col-md-12</attribute>
+          </xpath>
+      </template>
+      <template id="products_grid_full_width" inherit_id="website_sale.products_categories" name="Products Grid Full Width" active="True" customize_show="True">
+          <xpath expr="//div[@id='products_grid']" position="attributes">
+              <attribute name="class">col-md-12</attribute>
+          </xpath>
+      </template>
+  </data>      
+</openerp>
